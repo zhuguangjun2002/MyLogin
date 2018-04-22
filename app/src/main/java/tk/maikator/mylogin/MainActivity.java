@@ -11,12 +11,14 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import tk.maikator.mylogin.model.User;
 import tk.maikator.mylogin.service.UserClient;
 
 public class MainActivity extends AppCompatActivity {
 
     UserClient userClient = ServiceGenerator.createService(UserClient.class);
     private static String token;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +43,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void login()  {
 
-        Call<ResponseBody> call = userClient.login("admin","yantai2018");
+        Call<User> call = userClient.login("admin","yantai2018");
 
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    try {
-                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    // if you want to get <User> object, you just call `response.body()` to get it.
+                    token =response.body().getToken();
+                    if(token != null) {
+                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(MainActivity.this, "token is empty!", Toast.LENGTH_SHORT).show();
                     }
                 }else {
                     Toast.makeText(MainActivity.this, "login not correct :(", Toast.LENGTH_SHORT).show();
@@ -59,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "error login-- :(", Toast.LENGTH_SHORT).show();
 
             }
@@ -67,15 +72,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     private void getPostings(){
-        Call<ResponseBody> call = userClient.getPostings(token);
+        // 注意，因为我们使用的是`JWT-token`认证，标头为：`Bearer`
+        // 后台服务器的`settings.py`文件里进行了设置。
+        // 这里，必须加上`Bearer`，外加`空格`+token,后台方可认可。
+        String authHeader = "Bearer "+ token;
+        Call<ResponseBody> call = userClient.getPostings(authHeader);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     try {
-                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_SHORT).show();
+                        String posts = response.body().string();
+                        Toast.makeText(MainActivity.this,posts, Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
