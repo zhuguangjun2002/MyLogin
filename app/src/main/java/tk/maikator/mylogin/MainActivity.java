@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         UserClient userClient = ServiceGenerator.createService(UserClient.class);
         Call<User> call = userClient.login("admin","yantai2018");
 
-        /*
+
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -80,12 +80,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        */
 
 
+
+        /*
         Intent intent = new Intent(MainActivity.this, BackgroundService.class);
         startService(intent);
-
+        */
     }
 
 
