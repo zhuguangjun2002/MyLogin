@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         });
         */
 
-        
+
         Intent intent = new Intent(MainActivity.this, BackgroundService.class);
         startService(intent);
 
