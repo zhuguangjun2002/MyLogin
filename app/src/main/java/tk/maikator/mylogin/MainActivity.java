@@ -1,5 +1,6 @@
 package tk.maikator.mylogin;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +16,14 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import tk.maikator.mylogin.background.BackgroundService;
 import tk.maikator.mylogin.model.BlogPost;
 import tk.maikator.mylogin.model.User;
 import tk.maikator.mylogin.service.UserClient;
 
 public class MainActivity extends AppCompatActivity {
 
-    UserClient userClient = ServiceGenerator.createService(UserClient.class);
+
     private static String token;
 
 
@@ -50,9 +52,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void login()  {
-
+        UserClient userClient = ServiceGenerator.createService(UserClient.class);
         Call<User> call = userClient.login("admin","yantai2018");
 
+        /*
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -77,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        */
+
+        
+        Intent intent = new Intent(MainActivity.this, BackgroundService.class);
+        startService(intent);
 
     }
 
@@ -86,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         // 后台服务器的`settings.py`文件里进行了设置。
         // 这里，必须加上`Bearer`，外加`空格`+token,后台方可认可。
         String authHeader = "Bearer "+ token;
+        UserClient userClient = ServiceGenerator.createService(UserClient.class);
         Call<List<BlogPost>> call = userClient.getPostings(authHeader);
 
         call.enqueue(new Callback<List<BlogPost>>() {
